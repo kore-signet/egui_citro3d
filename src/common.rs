@@ -1,5 +1,13 @@
-use citro3d::{attrib, macros::include_shader, render::Target, shader::{self, Library, Program}, Instance};
-use ctru::{prelude::{Apt, Gfx, Hid}, services::gfx::{RawFrameBuffer, Screen}};
+use citro3d::{
+    Instance, attrib,
+    macros::include_shader,
+    render::Target,
+    shader::{self, Library, Program},
+};
+use ctru::{
+    prelude::{Apt, Gfx, Hid},
+    services::gfx::{RawFrameBuffer, Screen},
+};
 
 pub struct AllPass {
     pub gfx: Gfx,
@@ -7,14 +15,13 @@ pub struct AllPass {
     pub apt: Apt,
     pub instance: Instance,
     pub shader: Library,
-    pub program: Program
+    pub program: Program,
 }
 
 static SHADER_BYTES: &[u8] = include_shader!("assets/vshader.pica");
 
 impl AllPass {
     pub fn new() -> Self {
-
         let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
         let hid = Hid::new().expect("Couldn't obtain HID controller");
         let apt = Apt::new().expect("Couldn't obtain APT controller");
@@ -30,27 +37,27 @@ impl AllPass {
             apt,
             instance,
             shader,
-            program
+            program,
         }
     }
 }
 
-pub fn bottom_target<'a>(gfx: &'a Gfx, instance: &Instance) -> (Target<'a>,usize,usize) {
+pub fn bottom_target<'a>(gfx: &'a Gfx, instance: &Instance) -> (Target<'a>, usize, usize) {
     let mut bottom_screen = gfx.bottom_screen.borrow_mut();
     let RawFrameBuffer { width, height, .. } = bottom_screen.raw_framebuffer();
     let bottom_target = instance
         .render_target(width, height, bottom_screen, None)
         .expect("failed to create bottom screen render target");
-    (bottom_target,width,height)
+    (bottom_target, width, height)
 }
 
-pub fn top_target<'a>(gfx: &'a Gfx, instance: &Instance) -> (Target<'a>,usize,usize) {
+pub fn top_target<'a>(gfx: &'a Gfx, instance: &Instance) -> (Target<'a>, usize, usize) {
     let mut top_screen = gfx.top_screen.borrow_mut();
     let RawFrameBuffer { width, height, .. } = top_screen.raw_framebuffer();
     let top_target = instance
         .render_target(width, height, top_screen, None)
         .expect("failed to create top screen render target");
-    (top_target,width,height)
+    (top_target, width, height)
 }
 
 pub fn prepare_attr_info() -> attrib::Info {

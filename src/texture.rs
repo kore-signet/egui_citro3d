@@ -1,3 +1,7 @@
+// use citro3d::citro3d_sys;
+
+use citro3d::citro3d_sys;
+
 pub struct Texture {
     internal: citro3d_sys::C3D_Tex,
     pub width: u16,
@@ -16,7 +20,6 @@ impl Texture {
                 citro3d_sys::C3D_TexInit(&mut internal, width, height, format)
             }
         } {
-
             Texture {
                 internal,
                 width,
@@ -55,10 +58,7 @@ impl Texture {
             citro3d_sys::C3D_TexSetFilter(&mut self.internal, mag, min);
         }
     }
-    pub fn set_wrap(
-        &mut self,
-        wrap: ctru_sys::GPU_TEXTURE_WRAP_PARAM
-    ) {
+    pub fn set_wrap(&mut self, wrap: ctru_sys::GPU_TEXTURE_WRAP_PARAM) {
         unsafe {
             citro3d_sys::C3D_TexSetWrap(&mut self.internal, wrap, wrap);
         }

@@ -1,7 +1,7 @@
 use std::{collections::HashMap, ops::Deref};
 
 use ctru_sys::{GPU_A8, GPU_RGBA8};
-use egui::{epaint, Color32};
+use egui::{Color32, epaint};
 use swizzle_3ds::pix::ImageView;
 
 use crate::texture::Texture;
@@ -85,7 +85,7 @@ fn single_delta(
                 },
                 match delta_to_data {
                     super::ImgDat::Rgba8(..) => false,
-                    super::ImgDat::Alpha8(..) => true
+                    super::ImgDat::Alpha8(..) => true,
                 },
             );
 
@@ -112,19 +112,11 @@ fn single_delta(
         egui_filter_to_3ds(delta.options.magnification),
         egui_filter_to_3ds(delta.options.minification),
     );
-    tad.tex.set_wrap(
-        match delta.options.wrap_mode {
-            egui::TextureWrapMode::ClampToEdge => {
-                ctru_sys::GPU_CLAMP_TO_EDGE
-            },
-            egui::TextureWrapMode::Repeat => {
-                ctru_sys::GPU_REPEAT
-            },
-            egui::TextureWrapMode::MirroredRepeat => {
-                ctru_sys::GPU_MIRRORED_REPEAT
-            },
-        }
-    );
+    tad.tex.set_wrap(match delta.options.wrap_mode {
+        egui::TextureWrapMode::ClampToEdge => ctru_sys::GPU_CLAMP_TO_EDGE,
+        egui::TextureWrapMode::Repeat => ctru_sys::GPU_REPEAT,
+        egui::TextureWrapMode::MirroredRepeat => ctru_sys::GPU_MIRRORED_REPEAT,
+    });
     texmap.insert(texid, tad);
 }
 
@@ -148,7 +140,7 @@ fn patch_texture<T: Copy>(
 fn delta_to_data(delta: &epaint::ImageDelta) -> super::ImgDat {
     match &delta.image {
         egui::ImageData::Color(color_image) => convert_color32_to_rgba8(&color_image.pixels).into(),
-        egui::ImageData::Font(font_image) => convert_font_to_lum8(&font_image.pixels).into(),
+        // egui::ImageData::Font(font_image) => convert_font_to_lum8(&font_image.pixels).into(),
     }
 }
 
@@ -177,7 +169,10 @@ fn convert_color32_to_rgba8(x: &Vec<Color32>) -> Vec<u32> {
             // if !(x.r() == x.g() && x.g() == x.b() && x.b() == x.a()) {
             //     println!("Halleleuja!");
             // }
-            u32::from_le_bytes([x.r(),x.g(),x.b(),x.a()])
+            // let x = x.to_opaque();
+            // let [r,g,b,a] = x.to_srgba_unmultiplied();
+            // u32::from_le_bytes([r,g,b,255])
+            u32::from_le_bytes([x.r(), x.g(), x.b(), x.a()])
         })
         .collect()
 }
@@ -193,7 +188,7 @@ enum ComparisonResult {
 fn pixel_format_swizzle(x: &egui::ImageData) -> swizzle_3ds::pix::ImageFormat {
     match x {
         egui::ImageData::Color(..) => swizzle_3ds::pix::ImageFormat::Rgba8,
-        egui::ImageData::Font(..) => swizzle_3ds::pix::ImageFormat::Alpha8,
+        // egui::ImageData::Font(..) => swizzle_3ds::pix::ImageFormat::Alpha8,
     }
 }
 
@@ -219,9 +214,13 @@ fn compare_tad_with_delta(
             ComparisonResult::Panic
         };
     }
-    if same_data_type && delta.image.width() == tad.tex.width as usize && delta.image.height() == tad.tex.height as usize {
+    if same_data_type
+        && delta.image.width() == tad.tex.width as usize
+        && delta.image.height() == tad.tex.height as usize
+    {
         ComparisonResult::ReuseTexture
     } else {
         ComparisonResult::CreateNewTexture
     }
+    // ComparisonResult::CreateNewTexture
 }

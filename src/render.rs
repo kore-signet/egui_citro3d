@@ -1,4 +1,4 @@
-use citro3d::math::FVec4;
+use citro3d::{citro3d_sys, math::FVec4, shader::Program};
 
 use crate::texdelta;
 
@@ -17,7 +17,7 @@ use citro3d::Instance;
 use ctru::prelude::Hid;
 
 pub(crate) fn everything_that_happens_after_out(
-    #[cfg(feature = "dbg_printlns")] hid: &Hid,
+    // #[cfg(feature = "dbg_printlns")] hid: &Hid,
     instance: &mut Instance,
     ctx: &egui::Context,
     texmap: &mut HashMap<egui::TextureId, TexAndData>,
@@ -26,6 +26,7 @@ pub(crate) fn everything_that_happens_after_out(
     attr_info: &citro3d::attrib::Info,
     render_target: &mut citro3d::render::Target<'_>,
     out: egui::FullOutput,
+    program: &Program,
 ) {
     #[cfg(feature = "dbg_printlns")]
     if !out.textures_delta.set.is_empty() {
@@ -42,8 +43,20 @@ pub(crate) fn everything_that_happens_after_out(
 
     texdelta::texdelta(texmap, out.textures_delta.set);
     let tessel = ctx.tessellate(out.shapes, 1.0);
+    instance.bind_program(&program);
 
-    instance.render_frame_with(|instance| {
+    instance.render_frame_with(|mut instance| {
+        unsafe {
+            citro3d_sys::C3D_AlphaBlend(
+                ctru_sys::GPU_BLEND_ADD,
+                ctru_sys::GPU_BLEND_ADD,
+                ctru_sys::GPU_ONE,
+                ctru_sys::GPU_ONE_MINUS_SRC_ALPHA,
+                ctru_sys::GPU_ONE,
+                ctru_sys::GPU_ONE_MINUS_SRC_ALPHA,
+            )
+        };
+
         render_target.clear(citro3d::render::ClearFlags::ALL, 0xFF_00_00_00, 0);
         // let mut last_christmas_i_gave_you_my = None;
 
@@ -66,7 +79,7 @@ pub(crate) fn everything_that_happens_after_out(
             };
             let TexAndData { tex, data } = texmap.get_mut(&mesh.texture_id).unwrap();
             tex.bind(0);
-            configure_texenvs::configure_texenv(instance, data);
+            configure_texenvs::configure_texenv(&mut instance, data);
             for mesh in mesh.split_to_u16() {
                 #[cfg(feature = "dbg_printlns")]
                 if hid.keys_down().contains(KeyPad::X) {
@@ -85,6 +98,7 @@ pub(crate) fn everything_that_happens_after_out(
                 imm(|| {
                     for i in mesh.indices {
                         let egui::epaint::Vertex { pos, uv, color } = mesh.vertices[i as usize];
+
                         attr([pos.x, pos.y, 0.0, 0.0]);
                         attr([uv.x, uv.y, 0.0, 0.0]);
                         attr([
@@ -92,10 +106,13 @@ pub(crate) fn everything_that_happens_after_out(
                             color.g() as f32 / 255.0,
                             color.b() as f32 / 255.0,
                             color.a() as f32 / 255.0,
+                            // 0.0
                         ]);
                     }
                 });
             }
+
+            // instance.set
             unsafe {
                 use citro3d_sys::{C3D_DirtyTexEnv, C3D_GetTexEnv};
                 let te = C3D_GetTexEnv(0);

@@ -96,7 +96,13 @@ impl ImeStage {
 }
 
 /// For running after the bottom screen's `ctx.run`
-pub(crate) fn ime_part_b(ime: &mut Option<egui::output::IMEOutput>, ime_stage: &ImeStage, current_text_value: &mut Option<String>, current_float_value: &mut Option<f64>, out: &egui::FullOutput) {
+pub(crate) fn ime_part_b(
+    ime: &mut Option<egui::output::IMEOutput>,
+    ime_stage: &ImeStage,
+    current_text_value: &mut Option<String>,
+    current_float_value: &mut Option<f64>,
+    out: &egui::FullOutput,
+) {
     for e in &out.platform_output.events {
         match e {
             egui::output::OutputEvent::Clicked(widget_info) => {
@@ -112,14 +118,20 @@ pub(crate) fn ime_part_b(ime: &mut Option<egui::output::IMEOutput>, ime_stage: &
 }
 
 /// For running before running the bottom screen's `ctx.run`
-pub(crate) fn ime_part_a(gfx: &ctru::prelude::Gfx, apt: &ctru::prelude::Apt, ime_output: Option<egui::output::IMEOutput>, ime_stage: &mut ImeStage, current_text_value: &mut Option<String>, current_float_value: &mut Option<f64>, events: &mut Vec<egui::Event>) {
+pub(crate) fn ime_part_a(
+    gfx: &ctru::prelude::Gfx,
+    apt: &ctru::prelude::Apt,
+    ime_output: &mut Option<egui::output::IMEOutput>,
+    ime_stage: &mut ImeStage,
+    current_text_value: &mut Option<String>,
+    current_float_value: &mut Option<f64>,
+    events: &mut Vec<egui::Event>,
+) {
     if let Some(_) = ime_output {
         if *ime_stage == ImeStage::Nothing {
             use ctru::applets::swkbd;
-            let mut kbd = swkbd::SoftwareKeyboard::new(
-                swkbd::Kind::Normal,
-                swkbd::ButtonConfig::LeftRight,
-            );
+            let mut kbd =
+                swkbd::SoftwareKeyboard::new(swkbd::Kind::Normal, swkbd::ButtonConfig::LeftRight);
             kbd.set_initial_text(
                 current_text_value
                     .take()
