@@ -1,7 +1,11 @@
 use ctru::prelude::{Hid, KeyPad};
 use egui::{Event, Modifiers, Pos2};
 
-pub fn handle_input(hid: &Hid, last_pos: &mut Pos2) -> (Vec<Event>, bool) {
+pub fn handle_input(
+    hid: &Hid,
+    key_mapping: &[(KeyPad, (egui::Key, egui::Modifiers))],
+    last_pos: &mut Pos2,
+) -> (Vec<Event>, bool) {
     let mut events = vec![];
     let down = hid.keys_down();
     let held = hid.keys_held();
@@ -48,30 +52,24 @@ pub fn handle_input(hid: &Hid, last_pos: &mut Pos2) -> (Vec<Event>, bool) {
         });
     }
 
-    let key_mapping = [
-        (KeyPad::DOWN, egui::Key::ArrowDown),
-        (KeyPad::UP, egui::Key::ArrowUp),
-        (KeyPad::RIGHT, egui::Key::ArrowRight),
-        (KeyPad::LEFT, egui::Key::ArrowLeft),
-    ];
-
-    for (ds_key, egui_key) in key_mapping {
-        if down.contains(ds_key) {
+    for (ds_key, (egui_key, egui_modifiers)) in key_mapping {
+        if down.contains(*ds_key) {
             events.push(egui::Event::Key {
-                key: egui_key,
+                key: *egui_key,
                 physical_key: None,
                 pressed: true,
                 repeat: false,
-                modifiers: Modifiers::default(),
+                modifiers: *egui_modifiers,
             });
         }
-        if up.contains(ds_key) {
+
+        if up.contains(*ds_key) {
             events.push(egui::Event::Key {
-                key: egui_key,
+                key: *egui_key,
                 physical_key: None,
                 pressed: false,
                 repeat: false,
-                modifiers: Modifiers::default(),
+                modifiers: *egui_modifiers,
             });
         }
     }

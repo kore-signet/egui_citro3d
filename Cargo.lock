@@ -337,7 +337,7 @@ dependencies = [
 [[package]]
 name = "ecolor"
 version = "0.34.1"
-source = "git+https://github.com/kay-lambdadelta/egui?branch=remove-64-bit-atomics#ac2eba29473e2b1188a405b5fb46f3fa7b6375ba"
+source = "git+https://github.com/kore-signet/egui?branch=remove-64-bit-atomics#05f81919632abafce950a73eb8856c18d07ef58c"
 dependencies = [
  "bytemuck",
  "emath",
@@ -346,7 +346,7 @@ dependencies = [
 [[package]]
 name = "egui"
 version = "0.34.1"
-source = "git+https://github.com/kay-lambdadelta/egui?branch=remove-64-bit-atomics#ac2eba29473e2b1188a405b5fb46f3fa7b6375ba"
+source = "git+https://github.com/kore-signet/egui?branch=remove-64-bit-atomics#05f81919632abafce950a73eb8856c18d07ef58c"
 dependencies = [
  "accesskit",
  "ahash",
@@ -382,7 +382,7 @@ checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
 [[package]]
 name = "emath"
 version = "0.34.1"
-source = "git+https://github.com/kay-lambdadelta/egui?branch=remove-64-bit-atomics#ac2eba29473e2b1188a405b5fb46f3fa7b6375ba"
+source = "git+https://github.com/kore-signet/egui?branch=remove-64-bit-atomics#05f81919632abafce950a73eb8856c18d07ef58c"
 dependencies = [
  "bytemuck",
 ]
@@ -390,7 +390,7 @@ dependencies = [
 [[package]]
 name = "epaint"
 version = "0.34.1"
-source = "git+https://github.com/kay-lambdadelta/egui?branch=remove-64-bit-atomics#ac2eba29473e2b1188a405b5fb46f3fa7b6375ba"
+source = "git+https://github.com/kore-signet/egui?branch=remove-64-bit-atomics#05f81919632abafce950a73eb8856c18d07ef58c"
 dependencies = [
  "ahash",
  "bytemuck",
@@ -414,7 +414,7 @@ dependencies = [
 [[package]]
 name = "epaint_default_fonts"
 version = "0.34.1"
-source = "git+https://github.com/kay-lambdadelta/egui?branch=remove-64-bit-atomics#ac2eba29473e2b1188a405b5fb46f3fa7b6375ba"
+source = "git+https://github.com/kore-signet/egui?branch=remove-64-bit-atomics#05f81919632abafce950a73eb8856c18d07ef58c"
 
 [[package]]
 name = "equivalent"

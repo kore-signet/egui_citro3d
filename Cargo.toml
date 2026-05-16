@@ -7,7 +7,7 @@ edition = "2024"
 ctru-rs = { git = "https://github.com/rust3ds/ctru-rs" }
 ctru-sys = { git = "https://github.com/rust3ds/ctru-rs" }
 citro3d = { git = "https://github.com/kore-signet/citro3d-rs", branch = "legacy-texenv" }
-egui = { git = "https://github.com/kay-lambdadelta/egui", branch = "remove-64-bit-atomics", default-features = false, features = ["default_fonts","bytemuck"] }
+egui = { git = "https://github.com/kore-signet/egui", branch = "remove-64-bit-atomics", default-features = false, features = ["default_fonts","bytemuck"] }
 bytemuck = { version = "1.21.0", features = ["derive"] }
 swizzle_3ds = "0.2.0"
 derive_more = { version = "1.0.0", features = ["from"] }

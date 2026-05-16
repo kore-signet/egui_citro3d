@@ -9,37 +9,15 @@ use ctru::{
     services::gfx::{RawFrameBuffer, Screen},
 };
 
-pub struct AllPass {
-    pub gfx: Gfx,
-    pub hid: Hid,
-    pub apt: Apt,
-    pub instance: Instance,
-    pub shader: Library,
-    pub program: Program,
-}
-
 static SHADER_BYTES: &[u8] = include_shader!("assets/vshader.pica");
 
-impl AllPass {
-    pub fn new() -> Self {
-        let gfx = Gfx::new().expect("Couldn't obtain GFX controller");
-        let hid = Hid::new().expect("Couldn't obtain HID controller");
-        let apt = Apt::new().expect("Couldn't obtain APT controller");
-        let instance = citro3d::Instance::new().expect("failed to initialize Citro3D");
-        let shader = shader::Library::from_bytes(SHADER_BYTES).unwrap();
-        let vertex_shader = shader.get(0).unwrap();
+pub fn init_citro3d() -> (Instance, Library, Program) {
+    let instance = citro3d::Instance::new().expect("failed to initialize Citro3D");
+    let shader = shader::Library::from_bytes(SHADER_BYTES).unwrap();
+    let vertex_shader = shader.get(0).unwrap();
 
-        let program = shader::Program::new(vertex_shader).unwrap();
-
-        AllPass {
-            gfx,
-            hid,
-            apt,
-            instance,
-            shader,
-            program,
-        }
-    }
+    let program = shader::Program::new(vertex_shader).unwrap();
+    (instance, shader, program)
 }
 
 pub fn bottom_target<'a>(gfx: &'a Gfx, instance: &Instance) -> (Target<'a>, usize, usize) {

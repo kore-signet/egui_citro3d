@@ -18,7 +18,7 @@ fn egui_filter_to_3ds(t: egui::TextureFilter) -> ctru_sys::GPU_TEXTURE_FILTER_PA
 }
 
 pub fn texdelta(
-    texmap: &mut HashMap<egui::TextureId, TexAndData>,
+    texmap: &mut egui::ahash::HashMap<egui::TextureId, TexAndData>,
     set_deltas: Vec<(egui::TextureId, epaint::ImageDelta)>,
 ) {
     for x in set_deltas {
@@ -28,7 +28,7 @@ pub fn texdelta(
 
 #[inline]
 fn single_delta(
-    texmap: &mut HashMap<egui::TextureId, TexAndData>,
+    texmap: &mut egui::ahash::HashMap<egui::TextureId, TexAndData>,
     (texid, delta): (egui::TextureId, epaint::ImageDelta),
 ) {
     let tad = texmap.get_mut(&texid);

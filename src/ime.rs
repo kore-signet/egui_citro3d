@@ -1,3 +1,5 @@
+use ctru::services::{apt::Apt, gfx::Gfx};
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ImeStage {
     Nothing,
@@ -103,56 +105,70 @@ pub(crate) fn ime_part_b(
     current_float_value: &mut Option<f64>,
     out: &egui::FullOutput,
 ) {
-    for e in &out.platform_output.events {
-        match e {
-            egui::output::OutputEvent::Clicked(widget_info) => {
-                if *ime_stage == ImeStage::Nothing {
-                    *current_text_value = widget_info.current_text_value.clone();
-                    *current_float_value = widget_info.value.clone();
-                }
-            }
-            _ => (),
-        }
-    }
-    *ime = out.platform_output.ime;
 }
 
-/// For running before running the bottom screen's `ctx.run`
-pub(crate) fn ime_part_a(
-    gfx: &ctru::prelude::Gfx,
-    apt: &ctru::prelude::Apt,
-    ime_output: &mut Option<egui::output::IMEOutput>,
-    ime_stage: &mut ImeStage,
-    current_text_value: &mut Option<String>,
-    current_float_value: &mut Option<f64>,
-    events: &mut Vec<egui::Event>,
-) {
-    if let Some(_) = ime_output {
-        if *ime_stage == ImeStage::Nothing {
+pub struct ImeState {
+    stage: ImeStage,
+    output: Option<egui::output::IMEOutput>,
+    current_text: Option<String>,
+    current_float: Option<f64>,
+}
+
+impl ImeState {
+    pub fn new() -> ImeState {
+        ImeState {
+            stage: ImeStage::Nothing,
+            output: None,
+            current_text: None,
+            current_float: None,
+        }
+    }
+
+    pub fn part_a(&mut self, gfx: &Gfx, apt: &Apt, events: &mut Vec<egui::Event>) {
+        if self.output.is_some() && self.stage == ImeStage::Nothing {
             use ctru::applets::swkbd;
             let mut kbd =
                 swkbd::SoftwareKeyboard::new(swkbd::Kind::Normal, swkbd::ButtonConfig::LeftRight);
             kbd.set_initial_text(
-                current_text_value
+                self.current_text
                     .take()
+                    .filter(|x| !x.is_empty())
                     .map(|x| std::borrow::Cow::Owned(x))
-                    .or(current_float_value
+                    .or(self
+                        .current_float
                         .take()
                         .map(|x| std::borrow::Cow::Owned(x.to_string()))),
             );
             let (text, button) = kbd.launch(apt, gfx).unwrap();
             if button == swkbd::Button::Right {
-                *current_text_value = Some(text);
-                *ime_stage = ImeStage::START;
+                self.current_text = Some(text);
+                self.stage = ImeStage::START;
             } else {
-                *ime_stage = ImeStage::CANCEL;
+                self.stage = ImeStage::CANCEL;
             }
         }
+
+        if self.stage.add_event(events) {
+            events.push(egui::Event::Text(
+                self.current_text.take().unwrap_or_default(),
+            ));
+        }
+
+        self.stage = self.stage.next();
     }
-    if ime_stage.add_event(events) {
-        events.push(egui::Event::Text(
-            current_text_value.take().unwrap_or_default(),
-        ));
+
+    pub fn part_b(&mut self, out: &egui::output::FullOutput) {
+        for e in &out.platform_output.events {
+            match e {
+                egui::output::OutputEvent::Clicked(widget_info) => {
+                    if self.stage == ImeStage::Nothing {
+                        self.current_text = widget_info.current_text_value.clone();
+                        self.current_float = widget_info.value.clone();
+                    }
+                }
+                _ => (),
+            }
+        }
+        self.output = out.platform_output.ime;
     }
-    *ime_stage = ime_stage.next();
 }
